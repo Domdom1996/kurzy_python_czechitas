@@ -1,0 +1,114 @@
+# Ahoj! :) Předem děkuju za zpětnou vazbu na můj úkol, byla to celkem dřina, často jsem si musela
+# pomáhat návody a AI, ale když jsem to dokončila, tak mi to fungovalo :) Pak jsem to teda ještě
+# upravovala po formální stránce, tak doufám, že se to rozjede i tobě :) 
+
+
+# První část úkolu
+class Item:
+    def __init__(self, name, price):
+        self.name = name
+        self.price = price
+    
+    def __str__(self):
+        return f"{self.name}: {self.price} Kč"
+
+class Pizza(Item):
+    def __init__(self, name, price, ingredients):
+        super().__init__(name, price)
+        self.ingredients = ingredients
+    
+    def add_extra(self, ingredient, quantity, price_per_ingredient):
+        self.ingredients[ingredient] = quantity
+        self.price += quantity * price_per_ingredient
+    
+    def __str__(self):
+        ingredients_str = ", ".join([f"{ingredient}: {quantity}g" for ingredient, quantity in self.ingredients.items()])
+        return f"{self.name} - Ingredients: {ingredients_str}, Price: {self.price} Kč"
+
+class Drink(Item):
+    def __init__(self, name, price, volume):
+        super().__init__(name, price)
+        self.volume = volume
+    
+    def __str__(self):
+        return f"{self.name} - Volume: {self.volume}ml, Price: {self.price} Kč"
+
+# Testování tříd
+pizza = Pizza("Pepperoni", 150, {"dough": 200, "cheese": 100, "pepperoni": 150})
+pizza.add_extra("mushrooms", 50, 10)  # Přidání extra houby s cenou 10 Kč za 50g
+print(pizza)
+
+drink = Drink("Cola", 30, 500)
+print(drink)
+
+
+# Druhá část úkolu
+class Order:
+    def __init__(self, customer_name, delivery_address, items):
+        self.customer_name = customer_name
+        self.delivery_address = delivery_address
+        self.items = items
+        self.status = "Nová"
+    
+    def mark_delivered(self):
+        self.status = "Doručeno"
+    
+    def __str__(self):
+        item_details = "\n".join([f"- {item}" for item in self.items])
+        return f"Objednávka od: {self.customer_name}\nAdresa doručení: {self.delivery_address}\n\nPoložky v objednávce:\n{item_details}\n\nStav: {self.status}"
+
+# Testování třídy Order
+items = [Pizza("Hawaiian", 180, {"dough": 200, "cheese": 100, "ham": 100, "pineapple": 50}), 
+         Drink("Cola", 30, 500)]
+
+order = Order("Jan Novák", "Pražská 123, Praha", items)
+print(order)
+
+order.mark_delivered()
+print("\nPo označení doručení:")
+print(order)
+
+# Třetí část úkolu
+class DeliveryPerson:
+    def __init__(self, name, phone_number):
+        self.name = name
+        self.phone_number = phone_number
+        self.available = True
+        self.current_order = None
+    
+    def assign_order(self, order):
+        if self.available:
+            self.current_order = order
+            self.current_order.status = "Na cestě"
+            self.available = False
+            print(f"Objednávka přiřazena doručovateli {self.name}.")
+        else:
+            print("Doručovatel není dostupný.")
+
+    def complete_delivery(self):
+        if self.current_order:
+            self.current_order.mark_delivered()
+            print(f"Objednávka doručena zákazníkovi doručovatelem {self.name}.")
+            self.current_order = None
+            self.available = True
+        else:
+            print("Doručovatel nemá aktuální objednávku k doručení.")
+    
+    def __str__(self):
+        availability = "Dostupný" if self.available else "Nedostupný"
+        return f"Doručovatel: {self.name}, Telefonní číslo: {self.phone_number}, Dostupnost: {availability}"
+
+# Testování třídy DeliveryPerson
+delivery_person = DeliveryPerson("Petr Novák", "123456789")
+print(delivery_person)
+
+order = Order("Jan Novák", "Pražská 123, Praha", [Pizza("Hawaiian", 180, {"dough": 200, "cheese": 100, "ham": 100, "pineapple": 50})])
+delivery_person.assign_order(order)
+
+print("\nPo přiřazení objednávky:")
+print(delivery_person)
+
+delivery_person.complete_delivery()
+
+print("\nPo dokončení doručení:")
+print(delivery_person)
