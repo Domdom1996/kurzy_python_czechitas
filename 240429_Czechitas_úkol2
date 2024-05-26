@@ -1,0 +1,74 @@
+# Ahoj, moc děkuju za zkontrolování mého úkolu! 
+# Trochu jsem bojovala s tou první částí a upřímně si nejsem jistá, jestli funguje tak, jak má, protože ať tam zadám
+# jakékoliv IČO, vždycky mi to napíše hlášku "Data nebyla nalezena pro zadané IČO"
+# S druhou částí jsem spokojenější, tak to podle mě funguje tak, jak má. Ale pro jistotu jsem popsala všechny kroky.
+# Předem děkuju za zpětnou vazbu!
+
+# Začala jsem naimportováním requests
+import requests
+
+# Zeptala jsem se uživatele na IČO
+ico = input("Zadejte identifikační číslo (IČO) subjektu: ")
+
+# Vytvořila jsem url pro požadavek
+url = f"https://ares.gov.cz/ekonomicke-subjekty-v-be/rest/ekonomicke-subjekty/{ico}"
+
+# Poslala jsem GET požadavek
+response = requests.get(url)
+
+# Nechala jsem zkontrolovat, zda požadavek byl úspěšný
+if response.status_code == 200:
+    # Převeď odpověď na JSON
+    data = response.json()
+    
+    # Nechala jsem zkontrolovat, zda JSON obsahuje požadovaná data
+    if "ekonomicka_subjekt" in data:
+        ekonomicka_subjekt = data["ekonomicka_subjekt"]
+        obchodni_jmeno = ekonomicka_subjekt.get("obchodni_jmeno", "Není k dispozici")
+        adresa_sidla = ekonomicka_subjekt.get("adresa_sidla", "Není k dispozici")
+        
+        # Nechala jsem vypsat získané informace
+        print("Obchodní jméno: ", obchodni_jmeno)
+        print("Adresa sídla: ", adresa_sidla)
+    else:
+        print("Data nebyla nalezena pro zadané IČO.")
+else:
+    print(f"Chyba při načítání dat: {response.status_code}")
+
+import requests
+import json
+
+# Zeptala jsem se uživatele na název subjektu
+nazev = input("Zadej název subjektu: ")
+
+# Vytvořila jsem hlavičky pro POST požadavek
+headers = {
+    "accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+# Vytvořila jsem data pro POST požadavek
+data = json.dumps({"obchodniJmeno": nazev})
+
+# Poslala POST požadavek
+response = requests.post("https://ares.gov.cz/ekonomicke-subjekty-v-be/rest/ekonomicke-subjekty/vyhledat", headers=headers, data=data)
+
+# Zkontrolovala jsem, zda požadavek byl úspěšný
+if response.status_code == 200:
+    data = response.json()
+    
+    # Zkontrolovala jsem21298891, zda JSON odpověď obsahuje požadovaná data
+    if "pocetCelkem" in data and "ekonomickeSubjekty" in data:
+        pocet_subjektu = data["pocetCelkem"]
+        subjekty = data["ekonomickeSubjekty"]
+        
+        print(f"Nalezeno subjektů: {pocet_subjektu}")
+        
+        for subjekt in subjekty:
+            obchodni_jmeno = subjekt.get("obchodniJmeno", "Není k dispozici")
+            ico = subjekt.get("ico", "Není k dispozici")
+            print(f"{obchodni_jmeno}, {ico}")
+    else:
+        print("Data nebyla nalezena pro zadaný název.")
+else:
+    print(f"Chyba při načítání dat: {response.status_code}")
